@@ -2,6 +2,7 @@
 
 require_once "../../config/db.php";
 require_once "../../includes/auth.php";
+require_once "../../config/settings.php";
 
 $student_id = $_GET["student_id"] ?? "";
 
@@ -20,6 +21,7 @@ $rows = null;
 
 if ($student_id !== "") {
 
+    // CR002: Include persisted fine amounts in the student borrowing report.
     $stmt = $conn->prepare("
         SELECT
             br.id,
@@ -27,6 +29,7 @@ if ($student_id !== "") {
             br.due_date,
             br.return_date,
             br.status,
+            br.fine_amount,
 
             s.index_number,
             s.name AS student_name,
@@ -161,6 +164,7 @@ if ($student_id !== "") {
                         <th>Due Date</th>
                         <th>Return Date</th>
                         <th>Status</th>
+                        <th>Fine (<?= FINE_CURRENCY ?>)</th>
                     </tr>
                 </thead>
 
@@ -238,6 +242,7 @@ if ($student_id !== "") {
                                     $row["status"]
                                 ) ?>
                             </td>
+                            <td><?= number_format((float)$row["fine_amount"], 2) ?></td>
                         </tr>
 
                     <?php endwhile; ?>
@@ -246,7 +251,7 @@ if ($student_id !== "") {
                 <?php else: ?>
 
                     <tr>
-                        <td colspan="10"
+                        <td colspan="11"
                             style="text-align:center;">
                             No borrowing records found
                             for this student.

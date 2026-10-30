@@ -1,8 +1,8 @@
 
-CREATE DATABASE IF NOT EXISTS library_management;
+CREATE DATABASE IF NOT EXISTS library_management3;
 
 
-USE library_management;
+USE library_management3;
 
 
 
@@ -21,6 +21,8 @@ CREATE TABLE students (
     id INT AUTO_INCREMENT PRIMARY KEY,
     index_number VARCHAR(50) NOT NULL UNIQUE,
     name VARCHAR(150) NOT NULL,
+    -- CR001: Nullable for existing students until a librarian sets their password.
+    password_hash VARCHAR(255) DEFAULT NULL,
     grade VARCHAR(50),
     contact_number VARCHAR(20),
     registration_date DATE NOT NULL
@@ -48,6 +50,8 @@ CREATE TABLE borrowings (
     issue_date DATE NOT NULL,
     due_date DATE NOT NULL,
     return_date DATE DEFAULT NULL,
+    -- CR002: Fine is retained with the borrowing when it is returned.
+    fine_amount DECIMAL(10,2) NOT NULL DEFAULT 0.00,
     status ENUM('Issued', 'Returned') NOT NULL DEFAULT 'Issued',
 
     CONSTRAINT fk_borrowing_student

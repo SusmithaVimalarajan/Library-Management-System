@@ -12,7 +12,7 @@ The Library Management System is a web-based application developed to help a lib
 
 The system provides a simple and organized way to maintain library records and reduce manual work. The librarian can manage books and student information, issue books, record returned books, manage book hold requests, search available books, and generate reports.
 
-The system also provides a public book-search interface where registered students can place a temporary hold on an available book. When a book is held, the available quantity is updated immediately. An email notification is sent to the student through SMTP when the hold is approaching its expiry time.
+The system provides a book catalogue for authenticated librarians and students. Authenticated students can place a temporary hold on an available book. When a book is held, the available quantity is updated immediately. An email notification is sent to the student through SMTP when the hold is approaching its expiry time.
 
 Book holds automatically expire after the configured hold period if the student does not borrow the book. The automatic notification and expiry processes are handled using PHP scripts and Windows Task Scheduler.
 
@@ -140,15 +140,15 @@ The main objectives of the project are:
 * Student borrowing report
 * Book borrowing report
 
-## 5.10 Public Book Search
+## 5.10 Authenticated Book Catalogue
 
-Users can search available books by:
+After signing in, librarians and students can search available books by:
 
 * Book ID
 * Title
 * Author.
 
-Users can also select **Hold Book** for an available book and submit their registration number, email address, and phone number.
+Students can select **Hold Book** for an available book and submit their email address and phone number. The hold is associated with their signed-in student account. Guests must sign in before accessing the catalogue or holds.
 
 ---
 
@@ -229,9 +229,8 @@ The system includes:
 
 ## Not Included in the Current Version
 
-The following features are outside the scope of Version 1.0:
+The following features remain outside the scope of Version 1.0:
 
-* Student login
 * Book renewal
 * SMS notifications
 * Barcode scanning
@@ -261,11 +260,19 @@ The librarian is the main system user and can:
 
 ## 8.2 Student
 
-Students do not require a login in Version 1.0.
+Students can sign in with their index number and a password set or reset by the
+librarian. Their account page only displays their own borrowing and hold records.
+
+## Change Request Database Update
+
+For an existing database, run `migrations/20261029_cr001_cr002.sql` once after
+selecting the configured library database. New installations can use the updated
+`schema.sql`. CR002 uses a default fine of 10 LKR per overdue day, configured in
+`config/settings.php`.
 
 Students can:
 
-* Search and view available books through the public book-search interface
+* Search and view available books through the authenticated book catalogue
 * Place a temporary hold on an available book
 * Provide their registration number
 * Provide their email address

@@ -25,30 +25,37 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $grade = trim($_POST["grade"]);
     $contact = trim($_POST["contact"]);
     $date = $_POST["registration_date"];
+    $password = $_POST["password"] ?? "";
 
-    $s = $conn->prepare(
-        "UPDATE students 
-         SET name=?,grade=?,contact_number=?,registration_date=? 
-         WHERE id=?"
-    );
+    if ($password !== "" && strlen($password) < 8) {
+        $error = "Student login passwords must contain at least 8 characters.";
+    } else {
+        if ($password !== "") {
+            // CR001: Allow staff to set or reset a student's login password.
+            $passwordHash = password_hash($password, PASSWORD_DEFAULT);
+            $s = $conn->prepare(
+                "UPDATE students
+                 SET name=?,grade=?,contact_number=?,registration_date=?,password_hash=?
+                 WHERE id=?"
+            );
+            $s->bind_param("sssssi", $name, $grade, $contact, $date, $passwordHash, $id);
+        } else {
+            $s = $conn->prepare(
+                "UPDATE students
+                 SET name=?,grade=?,contact_number=?,registration_date=?
+                 WHERE id=?"
+            );
+            $s->bind_param("ssssi", $name, $grade, $contact, $date, $id);
+        }
 
-    $s->bind_param(
-        "ssssi",
-        $name,
-        $grade,
-        $contact,
-        $date,
-        $id
-    );
+        if ($s->execute()) {
 
-    if ($s->execute()) {
+            header("Location: index.php");
+            exit();
 
-        header("Location: index.php");
-        exit();
-
+        }
+        $error = "Update failed.";
     }
-
-    $error = "Update failed.";
 }
 ?>
 
@@ -106,6 +113,15 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             value="<?= $student["registration_date"] ?>" 
             required>
 
+        <label for="password">New Student Login Password (leave blank to keep current)</label>
+        <div class="password-field">
+            <input type="password" id="password" name="password" minlength="8"
+                   autocomplete="new-password">
+            <button class="password-toggle" type="button"
+                    data-password-toggle aria-controls="password"
+                    aria-pressed="false">Show</button>
+        </div>
+
         <button class="btn primary">
             Update
         </button>
@@ -118,5 +134,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
 </div>
 
+<script src="../../assets/js/password-toggle.js"></script>
 </body>
+
 </html>

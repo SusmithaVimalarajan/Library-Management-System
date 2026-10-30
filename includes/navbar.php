@@ -7,6 +7,7 @@
         <a href="/Library Management System/public/borrowings/index.php">Borrowings</a>
         <a href="/Library Management System/public/holdss/index.php">Holds</a>
         <a href="/Library Management System/public/reports/monthly.php">Reports</a>
+        <a href="/Library Management System/public/index.php">Book Catalogue</a>
         <a href="/Library Management System/public/logout.php">Logout</a>
         
     </div>

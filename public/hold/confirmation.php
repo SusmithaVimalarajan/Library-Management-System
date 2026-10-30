@@ -5,6 +5,7 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 
 require_once "../../config/db.php";
+require_once "../../includes/student_auth.php";
 
 
 
@@ -49,6 +50,11 @@ if (!$hold) {
 
 }
 
+// CR001: A hold confirmation is visible only to the student who owns the hold.
+if ((int)$hold["student_id"] !== (int)$_SESSION["student_id"]) {
+    http_response_code(403);
+    exit("You are not authorized to view this hold.");
+}
 
 
 
@@ -108,9 +114,11 @@ $remainingSeconds = max(
         Library Management System
     </div>
 
-    <a href="../index.php">
-        Back to Books
-    </a>
+    <div class="nav-links">
+        <a href="../student-dashboard.php">My Records</a>
+        <a href="../index.php">Book Catalogue</a>
+        <a href="../logout.php">Logout</a>
+    </div>
 
 </nav>
 

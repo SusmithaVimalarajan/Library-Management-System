@@ -11,22 +11,26 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $grade = trim($_POST["grade"]);
     $contact = trim($_POST["contact"]);
     $date = $_POST["registration_date"];
+    $password = $_POST["password"] ?? "";
 
-    if ($idx === "" || $name === "" || $date === "") {
+    if ($idx === "" || $name === "" || $date === "" || strlen($password) < 8) {
 
-        $error = "Please enter required fields.";
+        $error = "Please complete all required fields and use a password with at least 8 characters.";
 
     } else {
+        // CR001: Store student credentials as a password hash.
+        $passwordHash = password_hash($password, PASSWORD_DEFAULT);
 
         $s = $conn->prepare(
-            "INSERT INTO students(index_number,name,grade,contact_number,registration_date) 
-             VALUES(?,?,?,?,?)"
+            "INSERT INTO students(index_number,name,password_hash,grade,contact_number,registration_date)
+             VALUES(?,?,?,?,?,?)"
         );
 
         $s->bind_param(
-            "sssss",
+            "ssssss",
             $idx,
             $name,
+            $passwordHash,
             $grade,
             $contact,
             $date
@@ -81,6 +85,15 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         <label>Student Name *</label>
         <input name="name" required>
 
+        <label for="password">Student Login Password *</label>
+        <div class="password-field">
+            <input type="password" id="password" name="password" minlength="8"
+                   autocomplete="new-password" required>
+            <button class="password-toggle" type="button"
+                    data-password-toggle aria-controls="password"
+                    aria-pressed="false">Show</button>
+        </div>
+
         <label>Department</label>
         <input name="grade">
 
@@ -106,6 +119,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     </form>
 
 </div>
+<script src="../../assets/js/password-toggle.js"></script>
 <script>
 function clearForm() {
     document.querySelector(".form-card").reset();

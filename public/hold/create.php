@@ -1,6 +1,7 @@
 <?php
 
 require_once "../../config/db.php";
+require_once "../../includes/student_auth.php";
 
 
 date_default_timezone_set("Asia/Colombo");
@@ -16,7 +17,6 @@ if ($_SERVER["REQUEST_METHOD"] !== "POST") {
 
 
 
-$indexNumber = trim($_POST["index_number"] ?? "");
 $email       = trim($_POST["email"] ?? "");
 $phone       = trim($_POST["phone_number"] ?? "");
 $bookId      = filter_input(INPUT_POST, "book_id", FILTER_VALIDATE_INT);
@@ -26,11 +26,6 @@ $errors = [];
 
 if ($bookId === false || $bookId === null || $bookId < 1) {
     $errors[] = "Invalid book.";
-}
-
-
-if ($indexNumber === "") {
-    $errors[] = "Please enter your registration number.";
 }
 
 
@@ -63,21 +58,23 @@ $conn->begin_transaction();
 try {
 
    
+    // CR001: Take the hold owner from the authenticated student session.
     $studentStmt = $conn->prepare(
         "SELECT id, name
          FROM students
-         WHERE index_number = ?
+         WHERE id = ?
          LIMIT 1
          FOR UPDATE"
     );
 
-    $studentStmt->bind_param("s", $indexNumber);
+    $studentId = (int)$_SESSION["student_id"];
+    $studentStmt->bind_param("i", $studentId);
     $studentStmt->execute();
 
     $student = $studentStmt->get_result()->fetch_assoc();
 
     if (!$student) {
-        throw new Exception("Invalid registration number.");
+        throw new Exception("Student account not found.");
     }
 
     

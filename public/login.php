@@ -2,6 +2,11 @@
 
 session_start();
 
+if (($_SESSION["role"] ?? "") === "student" && isset($_SESSION["student_id"])) {
+    header("Location: student-dashboard.php");
+    exit();
+}
+
 if (isset($_SESSION["user_id"])) {
     header("Location: dashboard.php");
     exit();
@@ -57,6 +62,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                     $_SESSION["user_id"] = $user["id"];
                     $_SESSION["username"] = $user["username"];
                     $_SESSION["role"] = $user["role"];
+                    unset($_SESSION["student_id"], $_SESSION["student_name"]);
 
                 
                     header("Location: dashboard.php");
@@ -106,7 +112,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
             <h1>Library Management System</h1>
 
-            <p>Librarian Login</p>
+            
 
         </div>
 
@@ -154,13 +160,18 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                     Password
                 </label>
 
-                <input
-                    type="password"
-                    id="password"
-                    name="password"
-                    placeholder="Enter password"
-                    autocomplete="current-password"
-                    required>
+                <div class="password-field">
+                    <input
+                        type="password"
+                        id="password"
+                        name="password"
+                        placeholder="Enter password"
+                        autocomplete="current-password"
+                        required>
+                    <button class="password-toggle" type="button"
+                            data-password-toggle aria-controls="password"
+                            aria-pressed="false">Show</button>
+                </div>
 
             </div>
 
@@ -179,17 +190,20 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         <div class="login-info">
 
             <p>
-                <strong>Library Management System</strong>
+                <strong></strong>
             </p>
 
-            <p>
-                Librarian access only
-            </p>
+            
+
+            <a class="btn primary full" href="student-login.php">
+                Student? Log in here
+            </a>
 
         </div>
 
     </div>
 
+<script src="../assets/js/password-toggle.js"></script>
 </body>
 
 </html>

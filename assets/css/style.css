@@ -192,6 +192,33 @@ textarea {
     transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
+.password-field {
+    position: relative;
+}
+
+.password-field input {
+    padding-right: 68px;
+}
+
+.password-toggle {
+    position: absolute;
+    top: 8px;
+    right: 9px;
+    padding: 4px 6px;
+    border: 0;
+    background: transparent;
+    color: #1769aa;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.password-toggle:focus-visible {
+    outline: 2px solid #1769aa;
+    outline-offset: 2px;
+    border-radius: 3px;
+}
+
 input:hover,
 select:hover,
 textarea:hover {
@@ -393,6 +420,23 @@ tbody tr:last-child td {
     
 }
 
+/* CR004: Make overdue borrowing records prominent without obscuring their text. */
+.overdue-row,
+.overdue-row:hover {
+    background: #fff0f0;
+}
+
+.overdue-row td {
+    color: #842029;
+}
+
+.badge.overdue-badge {
+    min-height: 0;
+    padding: 4px 9px;
+    background: #f8d7da;
+    color: #842029;
+    white-space: nowrap;
+}
 
 .alert {
     padding: 12px 14px;

@@ -2,6 +2,7 @@
 
 require_once "../../config/db.php";
 require_once "../../includes/auth.php";
+require_once "../../config/settings.php";
 
 $book_id = $_GET["book_id"] ?? "";
 
@@ -19,6 +20,7 @@ $rows = null;
 
 if ($book_id !== "") {
 
+    // CR002: Include persisted fine amounts in the book borrowing report.
     $stmt = $conn->prepare("
         SELECT
             br.id,
@@ -26,6 +28,7 @@ if ($book_id !== "") {
             br.due_date,
             br.return_date,
             br.status,
+            br.fine_amount,
 
             s.index_number,
             s.name AS student_name,
@@ -154,6 +157,7 @@ if ($book_id !== "") {
                         <th>Due Date</th>
                         <th>Return Date</th>
                         <th>Status</th>
+                        <th>Fine (<?= FINE_CURRENCY ?>)</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -213,6 +217,7 @@ if ($book_id !== "") {
                                     $row["status"]
                                 ) ?>
                             </td>
+                            <td><?= number_format((float)$row["fine_amount"], 2) ?></td>
                         </tr>
 
                     <?php endwhile; ?>
@@ -221,7 +226,7 @@ if ($book_id !== "") {
                 <?php else: ?>
 
                     <tr>
-                        <td colspan="11"
+                        <td colspan="12"
                             style="text-align:center;">
 
                             No students have borrowed

@@ -31,10 +31,10 @@ session_destroy();
 
         <br>
 
-        <a href="index.php" 
+        <a href="login.php"
             class="btn primary full"
             style="text-align: center;">
-            Go to Public Library
+            Go to Admin Login
         </a>
 
         <br><br>

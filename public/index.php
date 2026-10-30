@@ -2,6 +2,14 @@
 if (session_status() === PHP_SESSION_NONE) { session_start(); }
 require_once "../config/db.php";
 
+// CR001: Do not expose the catalogue to users without a student or librarian session.
+if (
+    !(($_SESSION["role"] ?? "") === "student" && isset($_SESSION["student_id"])) &&
+    !isset($_SESSION["user_id"])
+) {
+    header("Location: login.php");
+    exit();
+}
 
 $q = trim($_GET["q"] ?? "");
 
@@ -34,10 +42,18 @@ if ($q !== "") {
 </head>
 <body>
 
+<?php if (isset($_SESSION["user_id"])): ?>
+    <?php include "../includes/navbar.php"; ?>
+<?php else: ?>
 <nav class="navbar">
     <div class="logo">Library Management System</div>
-    <a href="login.php">Librarian Login</a>
+    <div class="nav-links">
+        <a href="student-dashboard.php">My Records</a>
+        <a href="index.php">Book Catalogue</a>
+        <a href="logout.php">Logout</a>
+    </div>
 </nav>
+<?php endif; ?>
 
 <div class="container">
     <h1>Library Books</h1>
@@ -82,7 +98,11 @@ if ($q !== "") {
                         <td><?= htmlspecialchars($book["category"] ?: "-") ?></td>
                         <td><?= (int)$book["available_quantity"] ?></td>
                         <td>
-                            <?php if ((int)$book["available_quantity"] > 0): ?>
+                            <?php if (
+                                ($_SESSION["role"] ?? "") === "student" &&
+                                isset($_SESSION["student_id"]) &&
+                                (int)$book["available_quantity"] > 0
+                            ): ?>
                                 <button
                                     type="button"
                                     class="btn primary small hold-open"
@@ -90,8 +110,10 @@ if ($q !== "") {
                                     data-book-label="<?= htmlspecialchars($book["book_id"] . " - " . $book["title"], ENT_QUOTES) ?>">
                                     Hold Book
                                 </button>
-                            <?php else: ?>
+                            <?php elseif ((int)$book["available_quantity"] < 1): ?>
                                 <span class="badge unavailable-badge">Currently Unavailable</span>
+                            <?php else: ?>
+                                -
                             <?php endif; ?>
                         </td>
                     </tr>
@@ -122,9 +144,7 @@ if ($q !== "") {
             
             <input type="hidden" name="book_id" id="holdBookId">
 
-            <label for="index_number">Student Registration Number </label>
-            <input type="text" id="index_number" name="index_number"
-                   placeholder="Example: ST001" required>
+            <p>Placing a hold as <strong><?= htmlspecialchars($_SESSION["student_name"]) ?></strong></p>
 
             <label for="email">Email Address </label>
             <input type="email" id="email" name="email"
@@ -162,7 +182,7 @@ document.querySelectorAll(".hold-open").forEach(button => {
         selectedBookLabel.textContent = button.dataset.bookLabel;
         modal.classList.add("show");
         modal.setAttribute("aria-hidden", "false");
-        document.getElementById("index_number").focus();
+        document.getElementById("email").focus();
     });
 });
 

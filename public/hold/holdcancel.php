@@ -1,5 +1,6 @@
 <?php
 require_once "../../config/db.php";
+require_once "../../includes/student_auth.php";
 
 
 if (session_status() === PHP_SESSION_NONE) {
@@ -27,10 +28,12 @@ try {
         "SELECT id, book_id, status, expiry_time
          FROM book_holds
          WHERE hold_token = ?
+           AND student_id = ?
          LIMIT 1
          FOR UPDATE"
     );
-    $holdStmt->bind_param("s", $token);
+    $studentId = (int)$_SESSION["student_id"];
+    $holdStmt->bind_param("si", $token, $studentId);
     $holdStmt->execute();
     $hold = $holdStmt->get_result()->fetch_assoc();
 

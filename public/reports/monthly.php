@@ -3,9 +3,11 @@
 
 require_once "../../config/db.php";
 require_once "../../includes/auth.php";
+require_once "../../config/settings.php";
 
 $month = $_GET["month"] ?? date("Y-m");
 
+// CR002: Include persisted fine amounts in the monthly borrowing report.
 $stmt = $conn->prepare("
     SELECT 
         br.*,
@@ -94,6 +96,7 @@ $rows = $stmt->get_result();
                     <th>Due Date</th>
                     <th>Return Date</th>
                     <th>Status</th>
+                    <th>Fine (<?= FINE_CURRENCY ?>)</th>
                 </tr>
             </thead>
 
@@ -143,6 +146,7 @@ $rows = $stmt->get_result();
                                 $r["status"]
                             ) ?>
                         </td>
+                        <td><?= number_format((float)$r["fine_amount"], 2) ?></td>
                     </tr>
                 <?php endwhile; ?>
 
@@ -151,7 +155,7 @@ $rows = $stmt->get_result();
 
                 <tr>
                     <td
-                        colspan="8"
+                        colspan="9"
                         style="text-align:center;">
 
                         No borrowing records found
@@ -172,4 +176,3 @@ $rows = $stmt->get_result();
 </body>
 
 </html>
-
